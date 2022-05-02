@@ -1,0 +1,382 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute code within the notebook, the results appear beneath the code. 
+
+Try executing this chunk by clicking the *Run* button within the chunk or by placing your cursor inside it and pressing *Ctrl+Shift+Enter*. 
+
+```{r}
+plot(cars)
+```
+
+```{r}
+Add a new chunk by clicking the *Insert Chunk* button on the toolbar or by pressing *Ctrl+Alt+I*.
+
+When you save the notebook, an HTML file containing the code and output will be saved alongside it (click the *Preview* button or press *Ctrl+Shift+K* to preview the HTML file).
+
+The preview shows you a rendered HTML copy of the contents of the editor. Consequently, unlike *Knit*, *Preview* does not run any R code chunks. Instead, the output of the chunk when it was last run in the editor is displayed.
+```
+
+
+```{r}
+setwd("C:\\Users\\dave_\\Desktop\\DHDA\\SEMESTER1\\DHDS110 -Data Science and Data Analytics\\week 11 - Rstudio Data Viz")
+#recquired packages
+
+library(tidyverse)
+library(ggpubr)
+
+
+#required data
+Malaria <- read.csv("Oo2003Data.csv", sep=",", header=T)
+Osteo <- read.csv("xtr.csv")
+Malaria
+Osteo
+```
+How to make a figure?
+
+Thought process :
+Data -> Variables and their relationships -> type of graph
+
+ggplot process :
+Data -> aesthetics -> geoms
+Aesthetics == quantifiable features of a graphic 
+
+Objective : make a plot of mosquito abundance and malaria prevalence
+
+First step : data -> aesthetics
+             mosquito abundance -> x-axis
+             malaria prevalence -> Y-axis 
+             
+```{r}
+ggplot(Malaria, aes(x=TotalAbun, y=MalariaPrev, color=MalariaCat))
+
+```
+
+Second step : mapping aesthetics -> geom
+                      x,y -> geom_point(scatterplot)
+                      
+```{r}
+ggplot(Malaria, aes(x=TotalAbun, y=MalariaPrev, color=MalariaCat)) + 
+  geom_point()
+```
+How to build plots iteratively by adding more and more layers
+
+```{r}
+ggplot(Malaria, aes(x=TotalAbun, y=MalariaPrev, color=MalariaCat)) + 
+  geom_point() +
+  geom_smooth(method=lm) #lm = linear model
+```
+
+Mapping different aesthetics to each geom
+
+```{r}
+#Option 1
+
+ggplot(Malaria, aes(x=TotalAbun, y=MalariaPrev)) + 
+  geom_point(aes(color=MalariaCat)) +
+  geom_smooth(method=lm) #lm = linear model
+
+#Option 2
+ggplot(Malaria) + 
+  geom_point(aes(x=TotalAbun, y=MalariaPrev, color=MalariaCat)) +
+  geom_smooth(aes(x=TotalAbun, y=MalariaPrev),method=lm)
+```
+Modifying design elements of a geom
+
+```{r}
+ggplot(Malaria) + 
+  geom_point(aes(x=TotalAbun, y=MalariaPrev, color=MalariaCat), size=3) +
+  geom_smooth(aes(x=TotalAbun, y=MalariaPrev),method=lm, color="black")
+```
+Integrating ggplot with tidyverse
+
+```{r}
+Malaria %>%
+  filter(MalariaCat != "Low") %>%
+  ggplot() + 
+  geom_point(aes(x=TotalAbun, y=MalariaPrev, color=MalariaCat)) +
+  geom_smooth(aes(x=TotalAbun, y=MalariaPrev), method=lm)
+```
+Modifying plot elements
+
+1. Scales 
+
+Scaling Axes
+
+```{r}
+ggplot(Malaria) + 
+  geom_point(aes(x=TotalAbun, y=MalariaPrev, color=MalariaCat), size=3) +
+  geom_smooth(aes(x=TotalAbun, y=MalariaPrev),method=lm, color="black") +
+  scale_x_continuous(limits=c(0,300)) +
+  scale_y_continuous(limits = c(0,0.5))
+
+```
+Scaling categorical variable
+
+```{r}
+ggplot(Malaria) + 
+  geom_point(aes(x=TotalAbun, y=MalariaPrev, color=MalariaCat), size=3) +
+  geom_smooth(aes(x=TotalAbun, y=MalariaPrev),method=lm, color="black") +
+  scale_x_continuous(limits=c(0,300)) +
+  scale_y_continuous(limits = c(0,0.5)) +
+  scale_color_manual(breaks = c("High", "Mid", "Low"),
+                     labels = c("H", "M", "L"),
+                     values = c("black", "blue", "gray"))
+```
+2. Labels
+
+```{r}
+ggplot(Malaria) + 
+  geom_point(aes(x=TotalAbun, y=MalariaPrev, color=MalariaCat), size=3) +
+  geom_smooth(aes(x=TotalAbun, y=MalariaPrev),method=lm, color="black") +
+  scale_x_continuous(limits=c(0,300)) +
+  scale_y_continuous(limits = c(0,0.5)) +
+  scale_color_manual(breaks = c("High", "Mid", "Low"),
+                     labels = c("H", "M", "L"),
+                     values = c("black", "blue", "gray")) +
+  labs(x="Total mosquito abundance",
+       y= "Malaria prevalence",
+       title = "Malaria in Mudon, Myanamar",
+       color = "Malaria category")
+```
+3. Themes
+
+```{r}
+ggplot(Malaria) + 
+  geom_point(aes(x=TotalAbun, y=MalariaPrev, color=MalariaCat), size=3) +
+  geom_smooth(aes(x=TotalAbun, y=MalariaPrev),method=lm, color="black") +
+  scale_x_continuous(limits=c(0,300)) +
+  scale_y_continuous(limits = c(0,0.5)) +
+  scale_color_manual(breaks = c("High", "Mid", "Low"),
+                     labels = c("H", "M", "L"),
+                     values = c("black", "blue", "gray")) +
+  labs(x="Total mosquito abundance",
+       y= "Malaria prevalence",
+       title = "Malaria in Mudon, Myanamar",
+       color = "Malaria category") +
+  theme_classic()
+```
+Showcasing different plot types
+
+1. Histogram: Visualizes distributions
+
+```{r}
+ggplot(Malaria) + 
+  geom_histogram(aes(x=TotalAbun),
+                 bins = 10) # number of bins to make 
+```
+Break down this histogram by mosqutio species .... by first converting the data set to the wide to long format
+```{r}
+Malaria_long <- Malaria %>%
+  pivot_longer(6:18,
+               names_to="SpeciesName",
+               values_to="SpeciesAbun") %>%
+  filter(SpeciesAbun != 0)
+```
+Subsettting the histogram by species:
+```{r}
+ggplot(Malaria_long) +
+  geom_histogram(aes(x=SpeciesAbun, fill=SpeciesName),
+                 position ="dodge")
+```
+Faceting the histogram by species
+```{r}
+ggplot(Malaria_long) +
+  geom_histogram(aes(x=SpeciesAbun)) + 
+  facet_wrap(~SpeciesName)
+```
+2. Density plots: good for showing distribution , typically layered on top of histograms 
+
+```{r}
+ggplot(Malaria) + 
+  geom_histogram(aes(x=TotalAbun,
+                     y = ..density..), #wierd syntax rescaling y axis to density
+                 bins = 10)  + # number of bins to make 
+  geom_density(aes(x=TotalAbun))
+```
+3. Boxplot: also good for showing distribution, especially when there are lots of categorical variables 
+
+```{r}
+ggplot(Malaria_long) +
+  geom_boxplot(aes(x=SpeciesName, y=SpeciesAbun))
+```
+```{r}
+ggplot(Malaria_long) +
+  geom_boxplot(aes(x=SpeciesName, y=SpeciesAbun)) +
+ coord_flip() # Make plot horizontal 
+```
+4. Line plots : Show trend over time 
+```{r}
+ggplot(Malaria) + 
+  geom_line(aes(x=Month, y=TotalAbun))
+```
+Subset this graph by individual species 
+```{r}
+ggplot(Malaria_long) + 
+  geom_line(aes(x=Month, y=SpeciesAbun, color=SpeciesName))
+```
+5. Pie charts: good for proportional data 
+two step process in ggplot 
+1) make a stacked box plot
+2) project onto polar coordinates
+```{r}
+#1 stacked box plot
+ggplot(Malaria_long) +
+  geom_bar(aes(y=SpeciesAbun, fill=SpeciesName, x=1),
+           position="fill", # Convert raw counts to propotions
+           stat="identity") #Use proportions as is
+```
+```{r}
+#2) project onto polar coordinates
+ggplot(Malaria_long) +
+  geom_bar(aes(y=SpeciesAbun, fill=SpeciesName, x=1),
+           position="fill", # Convert raw counts to proportions
+           stat="identity")  + #Use proportions as is
+  coord_polar(theta = "y", #variable to map angle to
+              start = 0) #start mapping at 0 degrees
+```
+Breaking this down by month
+```{r}
+ggplot(Malaria_long) +
+  geom_bar(aes(y=SpeciesAbun, fill=SpeciesName, x=1),
+           position="fill", # Convert raw counts to proportions
+           stat="identity")  + #Use proportions as is
+  coord_polar(theta = "y", #variable to map angle to
+              start = 0) + #start mapping at 0 degrees
+  facet_wrap(~Month)
+```
+Remove the labels leftover from bar chart
+```{r}
+ggplot(Malaria_long) +
+  geom_bar(aes(y=SpeciesAbun, fill=SpeciesName, x=1),
+           position="fill", # Convert raw counts to proportions
+           stat="identity")  + #Use proportions as is
+  coord_polar(theta = "y", #variable to map angle to
+              start = 0) + #start mapping at 0 degrees
+                facet_wrap(~Month) + 
+                theme_void()
+  
+```
+6. Heat maps: great for 2-3 categorical variables
+```{r}
+ggplot(Malaria_long) +
+  geom_tile(aes(x=Month, y=SpeciesName, fill=SpeciesAbun))
+```
+Fix that it is continous variable
+```{r}
+ggplot(Malaria_long) +
+  geom_tile(aes(x=as.factor(Month), y=SpeciesName, fill=SpeciesAbun))
+```
+White boxes are the same as dark. misleading.  change the color gradient
+```{r}
+ggplot(Malaria_long) +
+  geom_tile(aes(x=as.factor(Month), y=SpeciesName, fill=SpeciesAbun)) +
+  scale_fill_gradient(low="white",
+                      high="red") +
+  theme_classic()
+```
+7. CDF and PDF
+
+CDF: show probability of event for every point in time
+PDF: show rate of change of probability of event for every point in time
+
+```{r}
+#For CDF
+ggplot(Osteo, aes(x=Time)) +
+  stat_ecdf(geom="step") +
+  labs(x="Time to new fracture (months)",
+       y="Cumulative proportion of cohort with a fracture",
+       title="CDF")
+
+  
+```
+```{r}
+#For PDF
+ggplot(Osteo, aes(x=Time)) +
+  stat_density(kernel="gaussian") + 
+   labs(x="Time to new fracture (months)",
+       y="Change in proportion of individuals with a fracture",
+       title="PDF")
+```
+Show side by side 
+```{r}
+Osteo_CDF <- ggplot(Osteo, aes(x=Time)) +
+  stat_ecdf(geom="step") +
+  labs(x="Time to new fracture (months)",
+       y="Cumulative proportion of cohort with a fracture",
+       title="CDF")
+
+Osteo_PDF <- ggplot(Osteo, aes(x=Time)) +
+  stat_density(kernel="gaussian") + 
+   labs(x="Time to new fracture (months)",
+       y="Change in proportion of individuals with a fracture",
+       title="PDF")
+
+#Stitching the two plots together
+ggarrange(Osteo_CDF,Osteo_PDF, ncol=2)
+```
+```{r}
+ggplot(Malaria_long, aes(x = SpeciesName, y = SpeciesAbun)) +
+  geom_boxplot() +
+  coord_flip()
+```
+```{r}
+ggplot(Malaria_long, aes(x = SpeciesName, y = SpeciesAbun, fill = MalariaCat)) +
+  geom_boxplot() +
+  coord_flip()
+```
+
+```{r}
+ggplot(Malaria_long, aes(x = SpeciesName, y = SpeciesAbun)) +
+  geom_boxplot() +
+  coord_flip() +
+  facet_wrap(~MalariaCat)
+```
+3. 
+```{r}
+Malaria_long <- Malaria_long %>%
+  mutate(RelativeAbun = SpeciesAbun/TotalAbun)
+Malaria_long
+```
+```{r}
+ggplot(Malaria_long, aes(x = Month, y = RelativeAbun, color = SpeciesName)) +
+  geom_line()
+```
+```{r}
+ggplot(Malaria_long, aes(x = Month, y = RelativeAbun, color = SpeciesName)) +
+  geom_line() +
+  scale_x_continuous(breaks=1:12,
+                     labels=c("Jan", "Feb", "Mar", "Apr", "May", "Jun", "July", "Aug", "Sep", "Oct", "Nov", "Dec")) +
+  labs(y = "Relative abundance")
+```
+
+```{r}
+Malaria_long %>%
+  filter(SpeciesName == "annularis" | SpeciesName ==  "dirus" | SpeciesName == "philippinensis") %>%
+  ggplot() +
+  geom_bar(aes(x = 1, y = SpeciesAbun, fill = SpeciesName),
+           position = "fill",
+           stat = "identity") +
+  coord_polar(theta = "y", 
+              start = 0) +
+  facet_wrap(~Month)
+
+```
+```{r}
+Malaria_long %>%
+  filter(SpeciesName == "annularis" | SpeciesName ==  "dirus" | SpeciesName == "philippinensis") %>%
+  ggplot() +
+  geom_bar(aes(x = 1, y = SpeciesAbun, fill = SpeciesName),
+           position = "fill",
+           stat = "identity") +
+  scale_fill_manual(breaks=c("annularis", "dirus", "philippinensis"),
+                    values=c("blue", "orange", "black")) + 
+                    labs(y = "Species Abudance") +
+  coord_polar(theta = "y", 
+              start = 0) +
+  facet_wrap(~Month) +
+  theme_void()
+```
+

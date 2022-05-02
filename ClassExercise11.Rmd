@@ -1,0 +1,108 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute code within the notebook, the results appear beneath the code. 
+
+Try executing this chunk by clicking the *Run* button within the chunk or by placing your cursor inside it and pressing *Ctrl+Shift+Enter*. 
+
+```{r}
+plot(cars)
+```
+
+Add a new chunk by clicking the *Insert Chunk* button on the toolbar or by pressing *Ctrl+Alt+I*.
+
+When you save the notebook, an HTML file containing the code and output will be saved alongside it (click the *Preview* button or press *Ctrl+Shift+K* to preview the HTML file).
+
+The preview shows you a rendered HTML copy of the contents of the editor. Consequently, unlike *Knit*, *Preview* does not run any R code chunks. Instead, the output of the chunk when it was last run in the editor is displayed.
+
+
+```{r}
+setwd("C:\\Users\\dave_\\Desktop\\DHDA\\SEMESTER1\\DHDS110 -Data Science and Data Analytics\\week 11 - Rstudio Data Viz")
+# Data visualization exercises
+
+# Required packages 
+#install.packages("ggpubr")
+library(tidyverse)
+library(ggpubr)
+
+# Required data
+
+Malaria <- read.csv("Oo2003Data.csv", sep=",", header=T)
+```
+1.
+
+```{r}
+ggplot(Malaria) + 
+  geom_point(aes(x=Rain, y=TotalAbun)) +
+  geom_smooth(aes(x=Rain, y=TotalAbun),method=lm) +
+   labs(x="Total mosquito abundance",
+       y= "Rainfall",
+       title = "Rain Vs Total Mosquito Abudance") +
+  theme_classic()
+```
+No relationship
+
+2.
+```{r}
+ggplot(Malaria_long, aes(x = SpeciesName, y = SpeciesAbun, fill = MalariaCat)) +
+  geom_boxplot() +
+  coord_flip()
+
+
+
+ggplot(Malaria_long, aes(x = SpeciesName, y = SpeciesAbun)) +
+  geom_boxplot() +
+  coord_flip() +
+  facet_wrap(~MalariaCat)
+```
+```{r}
+Malaria_long <- Malaria_long %>%
+  mutate(RelativeAbun = SpeciesAbun/TotalAbun)
+```
+
+
+```{r}
+ggplot(Malaria_long, aes(x = Month, y = RelativeAbun, color = SpeciesName)) +
+  geom_line()
+```
+
+```{r}
+ggplot(Malaria_long, aes(x = Month, y = RelativeAbun, color = SpeciesName)) +
+  geom_line() +
+  scale_x_continuous(breaks=1:12,
+                     labels=c("Jan", "Feb", "Mar", "Apr", "May", "Jun", "July", "Aug", "Sep", "Oct", "Nov", "Dec")) +
+  labs(y = "Relative abundance")
+```
+
+4.
+```{r}
+Malaria_long %>%
+  filter(SpeciesName == "annularis" | SpeciesName ==  "dirus" | SpeciesName == "philippinensis") %>%
+  ggplot() +
+  geom_bar(aes(x = 1, y = SpeciesAbun, fill = SpeciesName),
+           position = "fill",
+           stat = "identity") +
+  coord_polar(theta = "y", 
+              start = 0) +
+  facet_wrap(~Month)
+
+```
+
+```{r}
+Malaria_long %>%
+  filter(SpeciesName == "annularis" | SpeciesName ==  "dirus" | SpeciesName == "philippinensis") %>%
+  ggplot() +
+  geom_bar(aes(x = 1, y = SpeciesAbun, fill = SpeciesName),
+           position = "fill",
+           stat = "identity") +
+  scale_fill_manual(breaks=c("annularis", "dirus", "philippinensis"),
+                    values=c("blue", "orange", "black")) + 
+                    labs(y = "Species Abudance") +
+  coord_polar(theta = "y", 
+              start = 0) +
+  facet_wrap(~Month) +
+  theme_classic()
+```
+
