@@ -6,4 +6,5 @@ Including, cleaning, analysis, statistical modelling, visualization, linear regr
 Final assignment - Survival Analysis \
 Assignment 2 - Linear & log Regression \
 Assignment 1 - Statistical modelling \
-Exercises - Cleaning, EDA
+Exercises - Cleaning, EDA \ 
+SASCrunch - SAS
